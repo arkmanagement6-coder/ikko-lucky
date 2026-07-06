@@ -67,9 +67,9 @@ module.exports = async function handler(req, res) {
       amount: amountInPaise,
       currency: currency,
       customerName: customerName || 'Valued Client',
-      customerEmail: customerEmail || 'info@luckydigitalmedia.in',
+      customerEmail: customerEmail || 'info@ikkodigitals.in',
       customerPhone: customerPhone.toString(),
-      returnUrl: returnUrl || 'https://luckydigitalmedia.in/',
+      returnUrl: returnUrl || 'https://ikkodigitals.in/',
       timestamp: timestamp,
       checksum: checksum
     };

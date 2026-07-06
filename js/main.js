@@ -1,5 +1,5 @@
 /* 
-  Lucky Digital Media - Interactive Script System
+  Ikko Digital Shoots - Interactive Script System
   Author: Antigravity AI
 */
 
@@ -569,7 +569,7 @@ window.processManualBooking = function(leadData, submitBtn, originalBtnHTML) {
     // Fallback: If user explicitly wants local email client delivery, we can trigger mailto construct:
     const mailtoSubject = encodeURIComponent(`Photography Booking Inquiry - ${leadData.name}`);
     const mailtoBody = encodeURIComponent(
-      `Lucky Digital Media - Photo Shoot Booking Details:\n\n` +
+      `Ikko Digital Shoots - Photo Shoot Booking Details:\n\n` +
       `Full Name: ${leadData.name}\n` +
       `Mobile: ${leadData.phone}\n` +
       `Email: ${leadData.email}\n` +
@@ -580,8 +580,8 @@ window.processManualBooking = function(leadData, submitBtn, originalBtnHTML) {
       `Event Details / Message:\n${leadData.message}`
     );
     
-    // We open a mailto trigger so the user can easily hit send to info@luckydigitalmedia.in
-    window.location.href = `mailto:info@luckydigitalmedia.in?subject=${mailtoSubject}&body=${mailtoBody}`;
+    // We open a mailto trigger so the user can easily hit send to info@ikkodigitals.in
+    window.location.href = `mailto:info@ikkodigitals.in?subject=${mailtoSubject}&body=${mailtoBody}`;
 
   }, 1500); // 1.5 seconds loading simulation for modern tech feel
 };
@@ -638,7 +638,7 @@ window.submitCustomPayment = function() {
   // Validate email format syntax
   const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailReg.test(email)) {
-    alert("Please enter a valid email address (e.g., info@luckydigitalmedia.in).");
+    alert("Please enter a valid email address (e.g., info@ikkodigitals.in).");
     return;
   }
 

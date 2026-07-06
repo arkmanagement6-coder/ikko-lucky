@@ -27,9 +27,9 @@ $input = json_decode($inputJSON, TRUE);
 
 $amount = isset($input['amount']) ? $input['amount'] : null;
 $customerPhone = isset($input['customerPhone']) ? $input['customerPhone'] : null;
-$customerEmail = isset($input['customerEmail']) ? $input['customerEmail'] : 'info@luckydigitalmedia.in';
+$customerEmail = isset($input['customerEmail']) ? $input['customerEmail'] : 'info@ikkodigitals.in';
 $customerName = isset($input['customerName']) ? $input['customerName'] : 'Valued Client';
-$returnUrl = isset($input['returnUrl']) ? $input['returnUrl'] : 'https://luckydigitalmedia.in/';
+$returnUrl = isset($input['returnUrl']) ? $input['returnUrl'] : 'https://ikkodigitals.in/';
 
 if (!$amount || !$customerPhone) {
     http_response_code(400);
