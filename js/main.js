@@ -340,42 +340,15 @@ window.selectPricing = function(packageName) {
 };
 
 // ===========================================================================
-// 11. LEAD CAPTURE FORM VALIDATION & SABPAISA PAYMENT WORKFLOW
+// 11. LEAD CAPTURE FORM VALIDATION & SUBMISSION WORKFLOW
 // ===========================================================================
-// (SabPaisa uses standard REST API v2 server-to-server endpoints returning checkoutUrls; no client-side SDK needed)
-
-// Payment Choice State Configuration
-window.selectedPaymentType = "online";
-window.currentLeadData = null;
-
-window.closePaymentModal = function() {
-  const modal = document.getElementById('paymentModal');
-  if (modal) {
-    modal.classList.remove('show');
-    setTimeout(() => {
-      modal.style.display = 'none';
-    }, 400);
-  }
-};
-
-window.selectPaymentOption = function(type) {
-  window.selectedPaymentType = type;
-  const onlineCard = document.getElementById('optionOnline');
-  const offlineCard = document.getElementById('optionOffline');
-  
-  if (type === 'online') {
-    onlineCard.classList.add('active');
-    offlineCard.classList.remove('active');
-  } else {
-    offlineCard.classList.add('active');
-    onlineCard.classList.remove('active');
-  }
-};
 
 window.handleLeadSubmit = function(event) {
   event.preventDefault();
   
   const form = document.getElementById('leadForm');
+  const submitBtn = form.querySelector('.form-submit-btn');
+  const successAlert = document.getElementById('formSuccess');
   
   // Basic validation checks
   const fullName = document.getElementById('fullName').value.trim();
@@ -390,247 +363,9 @@ window.handleLeadSubmit = function(event) {
     return;
   }
 
-  // Calculate pricing values based on selected plan
-  let depositAmount = 5000;
-  let planName = "Silver Plan - Birthday Shoot";
-
-  if (service === "Wedding Shots") {
-    depositAmount = 25000;
-    planName = "Platinum Plan - Wedding Shots";
-  } else if (service === "Pre-Wedding Shoot") {
-    depositAmount = 12000;
-    planName = "Gold Plan - Pre-Wedding Shoot";
-  } else if (service === "Event Coverage") {
-    depositAmount = 10000;
-    planName = "Gold Plan - Event Coverage";
-  } else if (service === "Birthday Shoot") {
-    depositAmount = 5000;
-    planName = "Silver Plan - Birthday Shoot";
-  }
-
-  // Store data in global lead holder
-  window.currentLeadData = {
-    name: fullName,
-    phone: mobile,
-    email: email,
-    eventDetails: business || 'N/A',
-    service: service || 'Not Selected',
-    message: message,
-    amount: depositAmount,
-    planName: planName
-  };
-
-  // Render text values inside payment confirmation modal
-  document.getElementById('modalPlanName').textContent = planName;
-  document.getElementById('modalDepositAmount').textContent = `₹${depositAmount.toLocaleString('en-IN')}`;
-
-  // Launch Payment Modal with animations
-  const modal = document.getElementById('paymentModal');
-  if (modal) {
-    modal.style.display = 'flex';
-    // Force a browser reflow/repaint to trigger CSS transition
-    modal.offsetHeight;
-    modal.classList.add('show');
-  }
-};
-
-// Process checkout or manual booking fallback based on customer decision
-window.confirmPaymentChoice = function() {
-  window.closePaymentModal();
-  
-  const leadData = window.currentLeadData;
-  if (!leadData) return;
-
-  const form = document.getElementById('leadForm');
-  const submitBtn = form.querySelector('.form-submit-btn');
-  const originalBtnHTML = submitBtn.innerHTML;
-
-  submitBtn.disabled = true;
-  submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing Booking...';
-
-  if (window.selectedPaymentType === 'offline') {
-    // Process manual booking details
-    window.processManualBooking(leadData, submitBtn, originalBtnHTML);
-  } else {
-    // Process Online SabPaisa Checkout
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Initiating Payment...';
-    
-    // We try to call Vercel function first, if that fails we try PHP endpoint, if both fail we fallback to manual
-    window.createSabPaisaOrder(leadData)
-      .then(responseData => {
-        if (!responseData || !responseData.checkoutUrl) {
-          throw new Error("Invalid checkout URL returned from server");
-        }
-        
-        // Success: Redirect user to SabPaisa Checkout window
-        submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Redirecting to Payment...';
-        window.location.href = responseData.checkoutUrl;
-      })
-      .catch(error => {
-        console.error("Order creation failed, falling back to manual booking:", error);
-        alert(
-          "Payment Gateway Offline:\n" +
-          error.message + "\n\n" +
-          "How to resolve:\n" +
-          "1. If you are hosting on GitHub Pages, backend scripts (Node/PHP) cannot execute. Please host your repo on Vercel or Netlify (both are free and support our serverless handlers).\n" +
-          "2. If you are already on Vercel/PHP hosting, ensure you configured the environment variables SABPAISA_API_KEY and SABPAISA_SECRET_KEY in your hosting provider's dashboard."
-        );
-        window.processManualBooking(leadData, submitBtn, originalBtnHTML);
-      });
-  }
-};
-
-// Securely invoke Backend Endpoints to generate SabPaisa checkout redirect URL
-window.createSabPaisaOrder = async function(leadData) {
-  // Setup payload matching our api schemas
-  const requestPayload = {
-    amount: leadData.amount,
-    customerName: leadData.name,
-    customerPhone: leadData.phone,
-    customerEmail: leadData.email,
-    returnUrl: window.location.href // Redirect back here on payment completion
-  };
-
-  let errors = [];
-
-  // 1. Attempt Vercel Serverless Function First
-  try {
-    const response = await fetch('/api/create-order', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(requestPayload)
-    });
-    if (response.ok) {
-      return await response.json();
-    } else {
-      const errData = await response.json().catch(() => ({}));
-      errors.push(`- Vercel Serverless: [Status ${response.status}] ${errData.error || 'Server error'}`);
-    }
-  } catch(e) {
-    errors.push(`- Vercel Serverless: [Network/CORS Error] ${e.message}`);
-  }
-
-  // 2. Attempt PHP Script Fallback Second
-  try {
-    const response = await fetch('create_order.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(requestPayload)
-    });
-    if (response.ok) {
-      return await response.json();
-    } else {
-      const errData = await response.json().catch(() => ({}));
-      errors.push(`- PHP Backend: [Status ${response.status}] ${errData.error || 'Server error'}`);
-    }
-  } catch(e) {
-    errors.push(`- PHP Backend: [Network/CORS Error] ${e.message}`);
-  }
-
-  throw new Error(errors.join('\n'));
-};
-
-// Standard manual submission action
-window.processManualBooking = function(leadData, submitBtn, originalBtnHTML) {
-  const form = document.getElementById('leadForm');
-  const successAlert = document.getElementById('formSuccess');
-
-  setTimeout(() => {
-    // Hide form scroll and show success alert
-    successAlert.style.display = 'flex';
-    form.reset();
-    
-    // Re-enable button
-    submitBtn.disabled = false;
-    submitBtn.innerHTML = originalBtnHTML;
-
-    // Scroll card to top inside form container to display success banner
-    const formCard = document.querySelector('.form-card');
-    if (formCard) {
-      formCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-
-    // Automatically hide success alert after 8 seconds
-    setTimeout(() => {
-      // Fade it out
-      let opacity = 1;
-      const fadeInterval = setInterval(() => {
-        if (opacity > 0) {
-          opacity -= 0.1;
-          successAlert.style.opacity = opacity;
-        } else {
-          clearInterval(fadeInterval);
-          successAlert.style.display = 'none';
-          successAlert.style.opacity = 1;
-        }
-      }, 50);
-    }, 8000);
-
-    // Fallback: If user explicitly wants local email client delivery, we can trigger mailto construct:
-    const mailtoSubject = encodeURIComponent(`Photography Booking Inquiry - ${leadData.name}`);
-    const mailtoBody = encodeURIComponent(
-      `Ikko Digital Shoots - Photo Shoot Booking Details:\n\n` +
-      `Full Name: ${leadData.name}\n` +
-      `Mobile: ${leadData.phone}\n` +
-      `Email: ${leadData.email}\n` +
-      `Event Date & Venue: ${leadData.eventDetails}\n` +
-      `Service Selected: ${leadData.service}\n` +
-      `Selected Plan: ${leadData.planName}\n` +
-      `Deposit Due (Offline): INR ${leadData.amount.toLocaleString('en-IN')}\n\n` +
-      `Event Details / Message:\n${leadData.message}`
-    );
-    
-    // We open a mailto trigger so the user can easily hit send to info@ikkodigitals.in
-    window.location.href = `mailto:info@ikkodigitals.in?subject=${mailtoSubject}&body=${mailtoBody}`;
-
-  }, 1500); // 1.5 seconds loading simulation for modern tech feel
-};
-
-// ===========================================================================
-// 12. QUICK CUSTOM PAYMENT CONTROL SYSTEM
-// ===========================================================================
-window.openCustomPaymentModal = function() {
-  const modal = document.getElementById('customPaymentModal');
-  if (modal) {
-    // Reset form inputs
-    document.getElementById('customPayName').value = '';
-    document.getElementById('customPayPhone').value = '';
-    document.getElementById('customPayEmail').value = '';
-    document.getElementById('customPayPurpose').value = '';
-    document.getElementById('customPayAmount').value = '';
-
-    modal.style.display = 'flex';
-    // Force browser repaint to trigger CSS animation
-    modal.offsetHeight;
-    modal.classList.add('show');
-  }
-};
-
-window.closeCustomPaymentModal = function() {
-  const modal = document.getElementById('customPaymentModal');
-  if (modal) {
-    modal.classList.remove('show');
-    setTimeout(() => {
-      modal.style.display = 'none';
-    }, 400);
-  }
-};
-
-window.submitCustomPayment = function() {
-  const fullName = document.getElementById('customPayName').value.trim();
-  const phone = document.getElementById('customPayPhone').value.trim();
-  const email = document.getElementById('customPayEmail').value.trim();
-  const purpose = document.getElementById('customPayPurpose').value.trim();
-  const amountVal = document.getElementById('customPayAmount').value.trim();
-
-  if (!fullName || !phone || !email || !purpose || !amountVal) {
-    alert("Please fill out all required fields marked with *");
-    return;
-  }
-
   // Validate mobile number format (Exactly 10 digits)
   const phoneReg = /^[0-9]{10}$/;
-  if (!phoneReg.test(phone)) {
+  if (!phoneReg.test(mobile)) {
     alert("Please enter a valid 10-digit mobile number.");
     return;
   }
@@ -638,59 +373,67 @@ window.submitCustomPayment = function() {
   // Validate email format syntax
   const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailReg.test(email)) {
-    alert("Please enter a valid email address (e.g., info@ikkodigitals.in).");
+    alert("Please enter a valid email address.");
     return;
   }
 
-  const amount = parseFloat(amountVal);
-  if (isNaN(amount) || amount <= 0) {
-    alert("Please enter a valid positive payment amount.");
-    return;
-  }
+  const originalBtnHTML = submitBtn.innerHTML;
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting Request...';
 
-  const payBtn = document.getElementById('btnConfirmCustomPay');
-  const originalBtnHTML = payBtn.innerHTML;
-  
-  payBtn.disabled = true;
-  payBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Initiating Payment...';
-
-  // Construct structured data object to send to backend API
-  const paymentData = {
-    name: fullName,
-    phone: phone,
-    email: email,
-    amount: amount,
-    service: "Custom Payment",
-    planName: `Custom Payment: ${purpose}`,
-    eventDetails: `Purpose: ${purpose}`
-  };
-
-  // Trigger backend API call to generate SabPaisa Order redirect URL
-  window.createSabPaisaOrder(paymentData)
-    .then(responseData => {
-      if (!responseData || !responseData.checkoutUrl) {
-        throw new Error("Invalid checkout response");
+  // Send via AJAX to Formspree
+  fetch(form.action, {
+    method: 'POST',
+    body: new FormData(form),
+    headers: {
+      'Accept': 'application/json'
+    }
+  })
+  .then(response => {
+    if (response.ok) {
+      successAlert.style.display = 'flex';
+      form.reset();
+      
+      const formCard = document.querySelector('.form-card');
+      if (formCard) {
+        formCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
-      
-      payBtn.innerHTML = '<i class="fas fa-check-circle"></i> Redirecting to Payment...';
-      
-      // Close custom payment modal before redirecting
-      window.closeCustomPaymentModal();
-      
-      // Redirect directly to SabPaisa Checkout Page
-      window.location.href = responseData.checkoutUrl;
-    })
-    .catch(error => {
-      console.error("Custom order creation failed:", error);
-      alert(
-        "Payment Gateway Offline:\n" +
-        error.message + "\n\n" +
-        "How to resolve:\n" +
-        "1. If you are hosting on GitHub Pages, backend scripts (Node/PHP) cannot execute. Please host your repo on Vercel or Netlify (both are free and support our serverless handlers).\n" +
-        "2. If you are already on Vercel/PHP hosting, ensure you configured the environment variables SABPAISA_API_KEY and SABPAISA_SECRET_KEY in your hosting provider's dashboard."
-      );
-      payBtn.disabled = false;
-      payBtn.innerHTML = originalBtnHTML;
-    });
+
+      setTimeout(() => {
+        let opacity = 1;
+        const fadeInterval = setInterval(() => {
+          if (opacity > 0) {
+            opacity -= 0.1;
+            successAlert.style.opacity = opacity;
+          } else {
+            clearInterval(fadeInterval);
+            successAlert.style.display = 'none';
+            successAlert.style.opacity = 1;
+          }
+        }, 50);
+      }, 8000);
+    } else {
+      throw new Error("Form submission failed");
+    }
+  })
+  .catch(error => {
+    console.error("Formspree submission failed, falling back to mailto:", error);
+    // Fallback: trigger mailto construct
+    const mailtoSubject = encodeURIComponent(`Photography Booking Inquiry - ${fullName}`);
+    const mailtoBody = encodeURIComponent(
+      `Ikko Digital Shoots - Photo Shoot Booking Details:\n\n` +
+      `Full Name: ${fullName}\n` +
+      `Mobile: ${mobile}\n` +
+      `Email: ${email}\n` +
+      `Event Date & Venue: ${business || 'N/A'}\n` +
+      `Service Selected: ${service}\n\n` +
+      `Event Details / Message:\n${message}`
+    );
+    window.location.href = `mailto:info@ikkodigitals.in?subject=${mailtoSubject}&body=${mailtoBody}`;
+  })
+  .finally(() => {
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = originalBtnHTML;
+  });
 };
 
