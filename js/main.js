@@ -11,23 +11,27 @@ document.addEventListener('DOMContentLoaded', () => {
   const header = document.getElementById('header');
   const scrollProgressBar = document.getElementById('scrollProgress');
 
-  window.addEventListener('scroll', () => {
-    const scrollTop = window.scrollY;
-    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-    
-    // Update scroll progress bar
-    if (docHeight > 0) {
-      const scrollPercent = (scrollTop / docHeight) * 100;
-      scrollProgressBar.style.width = `${scrollPercent}%`;
-    }
+  if (header || scrollProgressBar) {
+    window.addEventListener('scroll', () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      
+      // Update scroll progress bar
+      if (scrollProgressBar && docHeight > 0) {
+        const scrollPercent = (scrollTop / docHeight) * 100;
+        scrollProgressBar.style.width = `${scrollPercent}%`;
+      }
 
-    // Toggle Header scrolled status
-    if (scrollTop > 50) {
-      header.classList.add('scrolled');
-    } else {
-      header.classList.remove('scrolled');
-    }
-  });
+      // Toggle Header scrolled status
+      if (header) {
+        if (scrollTop > 50) {
+          header.classList.add('scrolled');
+        } else {
+          header.classList.remove('scrolled');
+        }
+      }
+    });
+  }
 
   // =========================================================================
   // 2. HAMBURGER MENU DRAWER (MOBILE RESPONSIVE)
@@ -36,18 +40,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const navMenu = document.getElementById('navMenu');
   const navLinks = document.querySelectorAll('.nav-link');
 
-  hamburgerMenu.addEventListener('click', () => {
-    hamburgerMenu.classList.toggle('open');
-    navMenu.classList.toggle('open');
-  });
-
-  // Close mobile drawer when clicking a link
-  navLinks.forEach(link => {
-    link.addEventListener('click', () => {
-      hamburgerMenu.classList.remove('open');
-      navMenu.classList.remove('open');
+  if (hamburgerMenu && navMenu) {
+    hamburgerMenu.addEventListener('click', () => {
+      hamburgerMenu.classList.toggle('open');
+      navMenu.classList.toggle('open');
     });
-  });
+
+    // Close mobile drawer when clicking a link
+    navLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        hamburgerMenu.classList.remove('open');
+        navMenu.classList.remove('open');
+      });
+    });
+  }
 
   // =========================================================================
   // 3. DUAL-BEHAVIOR IMAGE SLIDER (SERVICE CAROUSEL)
@@ -58,208 +64,233 @@ document.addEventListener('DOMContentLoaded', () => {
   const sliderNext = document.getElementById('sliderNext');
   const sliderDots = document.querySelectorAll('#sliderDots .slider-dot');
   
-  let currentSlideIndex = 0;
-  const totalSlides = slides.length;
-  let sliderAutoInterval;
+  if (sliderContainer && slides.length > 0 && sliderPrev && sliderNext) {
+    let currentSlideIndex = 0;
+    const totalSlides = slides.length;
+    let sliderAutoInterval;
 
-  function updateSliderPosition() {
-    sliderContainer.style.transform = `translateX(-${currentSlideIndex * 25}%)`;
-    
-    // Update active dots
-    sliderDots.forEach((dot, index) => {
-      if (index === currentSlideIndex) {
-        dot.classList.add('active');
-      } else {
-        dot.classList.remove('active');
-      }
-    });
-  }
+    const updateSliderPosition = () => {
+      sliderContainer.style.transform = `translateX(-${currentSlideIndex * 25}%)`;
+      
+      // Update active dots
+      sliderDots.forEach((dot, index) => {
+        if (index === currentSlideIndex) {
+          dot.classList.add('active');
+        } else {
+          dot.classList.remove('active');
+        }
+      });
+    };
 
-  function goToNextSlide() {
-    currentSlideIndex = (currentSlideIndex + 1) % totalSlides;
-    updateSliderPosition();
-  }
-
-  function goToPrevSlide() {
-    currentSlideIndex = (currentSlideIndex - 1 + totalSlides) % totalSlides;
-    updateSliderPosition();
-  }
-
-  // Next / Prev triggers
-  sliderNext.addEventListener('click', () => {
-    goToNextSlide();
-    resetSliderTimer();
-  });
-
-  sliderPrev.addEventListener('click', () => {
-    goToPrevSlide();
-    resetSliderTimer();
-  });
-
-  // Dot triggers
-  sliderDots.forEach(dot => {
-    dot.addEventListener('click', (e) => {
-      currentSlideIndex = parseInt(e.target.getAttribute('data-index'));
+    const goToNextSlide = () => {
+      currentSlideIndex = (currentSlideIndex + 1) % totalSlides;
       updateSliderPosition();
+    };
+
+    const goToPrevSlide = () => {
+      currentSlideIndex = (currentSlideIndex - 1 + totalSlides) % totalSlides;
+      updateSliderPosition();
+    };
+
+    // Next / Prev triggers
+    sliderNext.addEventListener('click', () => {
+      goToNextSlide();
       resetSliderTimer();
     });
-  });
 
-  // Auto Scroll slider every 5 seconds
-  function startSliderTimer() {
-    sliderAutoInterval = setInterval(goToNextSlide, 5000);
-  }
+    sliderPrev.addEventListener('click', () => {
+      goToPrevSlide();
+      resetSliderTimer();
+    });
 
-  function resetSliderTimer() {
-    clearInterval(sliderAutoInterval);
+    // Dot triggers
+    sliderDots.forEach(dot => {
+      dot.addEventListener('click', (e) => {
+        currentSlideIndex = parseInt(e.target.getAttribute('data-index'));
+        updateSliderPosition();
+        resetSliderTimer();
+      });
+    });
+
+    // Auto Scroll slider every 5 seconds
+    const startSliderTimer = () => {
+      sliderAutoInterval = setInterval(goToNextSlide, 5000);
+    };
+
+    const resetSliderTimer = () => {
+      clearInterval(sliderAutoInterval);
+      startSliderTimer();
+    };
+
     startSliderTimer();
   }
-
-  startSliderTimer();
 
   // =========================================================================
   // 4. GOOGLE-REVIEW TESTIMONIALS SLIDER
   // =========================================================================
   const testimonialContainer = document.getElementById('testimonialContainer');
   const testimonialDots = document.querySelectorAll('#testimonialDots .testimonial-dot');
-  const totalTestimonials = testimonialDots.length;
-  let currentReviewIndex = 0;
-  let reviewAutoInterval;
+  
+  if (testimonialContainer && testimonialDots.length > 0) {
+    const totalTestimonials = testimonialDots.length;
+    let currentReviewIndex = 0;
+    let reviewAutoInterval;
 
-  function updateTestimonialPosition() {
-    testimonialContainer.style.transform = `translateX(-${currentReviewIndex * 20}%)`;
-    
-    testimonialDots.forEach((dot, index) => {
-      if (index === currentReviewIndex) {
-        dot.classList.add('active');
-      } else {
-        dot.classList.remove('active');
-      }
-    });
-  }
+    const updateTestimonialPosition = () => {
+      testimonialContainer.style.transform = `translateX(-${currentReviewIndex * 20}%)`;
+      
+      testimonialDots.forEach((dot, index) => {
+        if (index === currentReviewIndex) {
+          dot.classList.add('active');
+        } else {
+          dot.classList.remove('active');
+        }
+      });
+    };
 
-  function goToNextTestimonial() {
-    currentReviewIndex = (currentReviewIndex + 1) % totalTestimonials;
-    updateTestimonialPosition();
-  }
-
-  testimonialDots.forEach(dot => {
-    dot.addEventListener('click', (e) => {
-      currentReviewIndex = parseInt(e.target.getAttribute('data-index'));
+    const goToNextTestimonial = () => {
+      currentReviewIndex = (currentReviewIndex + 1) % totalTestimonials;
       updateTestimonialPosition();
-      resetReviewTimer();
+    };
+
+    testimonialDots.forEach(dot => {
+      dot.addEventListener('click', (e) => {
+        currentReviewIndex = parseInt(e.target.getAttribute('data-index'));
+        updateTestimonialPosition();
+        resetReviewTimer();
+      });
     });
-  });
 
-  function startReviewTimer() {
-    reviewAutoInterval = setInterval(goToNextTestimonial, 6000);
-  }
+    const startReviewTimer = () => {
+      reviewAutoInterval = setInterval(goToNextTestimonial, 6000);
+    };
 
-  function resetReviewTimer() {
-    clearInterval(reviewAutoInterval);
+    const resetReviewTimer = () => {
+      clearInterval(reviewAutoInterval);
+      startReviewTimer();
+    };
+
     startReviewTimer();
   }
-
-  startReviewTimer();
 
   // =========================================================================
   // 5. ANIMATED NUMERIC COUNTERS (VIEWPORT TRIGGERED)
   // =========================================================================
   const counterNumbers = document.querySelectorAll('.stat-number');
   
-  const countUp = (counter) => {
-    const target = +counter.getAttribute('data-target');
-    const duration = 2000; // 2 seconds animation duration
-    const frameRate = 1000 / 60; // 60 fps
-    const totalFrames = Math.round(duration / frameRate);
-    let frame = 0;
+  if (counterNumbers.length > 0) {
+    const countUp = (counter) => {
+      const target = +counter.getAttribute('data-target');
+      const duration = 2000; // 2 seconds animation duration
+      const frameRate = 1000 / 60; // 60 fps
+      const totalFrames = Math.round(duration / frameRate);
+      let frame = 0;
 
-    const animate = () => {
-      frame++;
-      const progress = frame / totalFrames;
-      // Ease out quadratic animation
-      const currentValue = Math.round(target * progress * (2 - progress));
-      
-      if (target === 3) {
-        counter.textContent = `${currentValue}+`;
-      } else if (target === 98) {
-        counter.textContent = `${currentValue}%`;
-      } else {
-        counter.textContent = `${currentValue}+`;
-      }
-
-      if (frame < totalFrames) {
-        requestAnimationFrame(animate);
-      } else {
+      const animate = () => {
+        frame++;
+        const progress = frame / totalFrames;
+        // Ease out quadratic animation
+        const currentValue = Math.round(target * progress * (2 - progress));
+        
         if (target === 3) {
-          counter.textContent = '3+';
+          counter.textContent = `${currentValue}+`;
         } else if (target === 98) {
-          counter.textContent = '98%';
+          counter.textContent = `${currentValue}%`;
         } else {
-          counter.textContent = `${target}+`;
+          counter.textContent = `${currentValue}+`;
         }
-      }
+
+        if (frame < totalFrames) {
+          requestAnimationFrame(animate);
+        } else {
+          if (target === 3) {
+            counter.textContent = '3+';
+          } else if (target === 98) {
+            counter.textContent = '98%';
+          } else {
+            counter.textContent = `${target}+`;
+          }
+        }
+      };
+      
+      animate();
     };
-    
-    animate();
-  };
 
-  // Intersection Observer for Counters
-  const counterObserver = new IntersectionObserver((entries, observer) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const counter = entry.target;
-        countUp(counter);
-        observer.unobserve(counter); // Trigger once
-      }
+    // Intersection Observer for Counters
+    const counterObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const counter = entry.target;
+          countUp(counter);
+          observer.unobserve(counter); // Trigger once
+        }
+      });
+    }, { threshold: 0.5 });
+
+    counterNumbers.forEach(counter => {
+      counterObserver.observe(counter);
     });
-  }, { threshold: 0.5 });
-
-  counterNumbers.forEach(counter => {
-    counterObserver.observe(counter);
-  });
+  }
 
   // =========================================================================
   // 6. SCROLL ENTRANCE ANIMATIONS (Intersection Observer)
   // =========================================================================
   const reveals = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale');
 
-  const revealObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('active');
-      }
-    });
-  }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+  if (reveals.length > 0) {
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('active');
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
 
-  reveals.forEach(reveal => {
-    revealObserver.observe(reveal);
+    reveals.forEach(reveal => {
+      revealObserver.observe(reveal);
+    });
+  }
+
+  // =========================================================================
+  // 7. ACTIVE MENU SECTION LINK TRACKING (For Multi-page or Single-page)
+  // =========================================================================
+  // Set active link based on current page URL first
+  const path = window.location.pathname;
+  const page = path.split("/").pop() || "index.html";
+  navLinks.forEach(link => {
+    link.classList.remove('active');
+    const href = link.getAttribute('href');
+    if (href === page || (page === "index.html" && href === "index.html") || (page === "" && href === "index.html")) {
+      link.classList.add('active');
+    }
   });
 
-  // =========================================================================
-  // 7. ACTIVE MENU SECTION LINK TRACKING
-  // =========================================================================
+  // Only run scroll spy if navigation contains hash links
+  const hasHashLinks = Array.from(navLinks).some(link => link.getAttribute('href').startsWith('#'));
   const sections = document.querySelectorAll('section');
-  
-  window.addEventListener('scroll', () => {
-    let currentSectionId = '';
-    const scrollPosition = window.scrollY + 150; // offset for header
+  if (hasHashLinks && sections.length > 0) {
+    window.addEventListener('scroll', () => {
+      let currentSectionId = '';
+      const scrollPosition = window.scrollY + 150; // offset for header
 
-    sections.forEach(section => {
-      const sectionTop = section.offsetTop;
-      const sectionHeight = section.offsetHeight;
-      if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
-        currentSectionId = section.getAttribute('id');
-      }
-    });
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.offsetHeight;
+        if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+          currentSectionId = section.getAttribute('id');
+        }
+      });
 
-    navLinks.forEach(link => {
-      link.classList.remove('active');
-      if (link.getAttribute('href') === `#${currentSectionId}`) {
-        link.classList.add('active');
-      }
+      navLinks.forEach(link => {
+        if (link.getAttribute('href').startsWith('#')) {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === `#${currentSectionId}`) {
+            link.classList.add('active');
+          }
+        }
+      });
     });
-  });
+  }
 
   // =========================================================================
   // 8. INTERACTIVE FAQ ACCORDIONS (SMOOTH HEIGHT)
@@ -294,50 +325,45 @@ document.addEventListener('DOMContentLoaded', () => {
   // =========================================================================
   const backToTopBtn = document.getElementById('backToTop');
 
-  window.addEventListener('scroll', () => {
-    if (window.scrollY > 400) {
-      backToTopBtn.classList.add('show');
-    } else {
-      backToTopBtn.classList.remove('show');
-    }
-  });
-
-  backToTopBtn.addEventListener('click', () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
+  if (backToTopBtn) {
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 400) {
+        backToTopBtn.classList.add('show');
+      } else {
+        backToTopBtn.classList.remove('show');
+      }
     });
-  });
+
+    backToTopBtn.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+  }
+
+  // =========================================================================
+  // 10. URL PARAMETERS PRE-SELECTION FOR CONTACT FORM
+  // =========================================================================
+  const serviceDropdown = document.getElementById('serviceInterested');
+  if (serviceDropdown) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const planParam = urlParams.get('plan');
+    if (planParam) {
+      const planLower = planParam.toLowerCase();
+      if (planLower.includes('silver') || planLower === 'birthday') {
+        serviceDropdown.value = 'Birthday Shoot';
+      } else if (planLower.includes('gold') || planLower === 'prewedding') {
+        serviceDropdown.value = 'Pre-Wedding Shoot';
+      } else if (planLower.includes('platinum') || planLower === 'wedding') {
+        serviceDropdown.value = 'Wedding Shots';
+      } else if (planLower === 'event') {
+        serviceDropdown.value = 'Event Coverage';
+      }
+    }
+  }
 
 });
-
-// ===========================================================================
-// 10. SELECT PRICING PLAN HELPER (dropdown synchronizer)
-// ===========================================================================
-window.selectPricing = function(packageName) {
-  const serviceDropdown = document.getElementById('serviceInterested');
-  if (!serviceDropdown) return;
-
-  if (packageName.includes('Silver')) {
-    serviceDropdown.value = 'Birthday Shoot';
-  } else if (packageName.includes('Gold')) {
-    serviceDropdown.value = 'Pre-Wedding Shoot';
-  } else if (packageName.includes('Platinum')) {
-    serviceDropdown.value = 'Wedding Shots';
-  }
-
-  // Smooth scroll down to consultation form section
-  const targetSection = document.getElementById('consultation');
-  if (targetSection) {
-    targetSection.scrollIntoView({ behavior: 'smooth' });
-    
-    // Focus full name input field after scroll
-    setTimeout(() => {
-      const nameInput = document.getElementById('fullName');
-      if (nameInput) nameInput.focus();
-    }, 800);
-  }
-};
 
 // ===========================================================================
 // 11. LEAD CAPTURE FORM VALIDATION & SUBMISSION WORKFLOW
@@ -347,6 +373,7 @@ window.handleLeadSubmit = function(event) {
   event.preventDefault();
   
   const form = document.getElementById('leadForm');
+  if (!form) return;
   const submitBtn = form.querySelector('.form-submit-btn');
   const successAlert = document.getElementById('formSuccess');
   
@@ -436,4 +463,3 @@ window.handleLeadSubmit = function(event) {
     submitBtn.innerHTML = originalBtnHTML;
   });
 };
-

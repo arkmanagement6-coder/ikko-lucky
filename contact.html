@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- SEO Optimized Meta Tags -->
+  <title>Contact Us | Ikko Digital Shoots</title>
+  <meta name="description" content="Book a photography session with Ikko Digital Shoots in Indore. Fill out our form to check availability and get a free quote for weddings, events, and birthdays.">
+  <meta name="author" content="Ikko Digital Shoots">
+  
+  <!-- Icons & Fonts -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Scroll Progress Indicator -->
+  <div class="scroll-progress-container">
+    <div class="scroll-progress-bar" id="scrollProgress"></div>
+  </div>
+
+  <!-- Sticky Glassmorphic Header -->
+  <header class="header scrolled" id="header" style="background-color: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--glass-border); box-shadow: var(--glass-shadow); padding: 12px 0;">
+    <div class="container header-container">
+      <a href="index.html" class="logo">
+        <span class="logo-dot"></span>Ikko Digital Shoots
+      </a>
+      
+      <nav class="nav" id="navMenu">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="about.html" class="nav-link">About</a>
+        <a href="services.html" class="nav-link">Services</a>
+        <a href="packages.html" class="nav-link">Packages</a>
+        <a href="contact.html" class="nav-link active">Contact</a>
+        <a href="contact.html" class="btn btn-primary mobile-cta-btn">Book a Shoot</a>
+      </nav>
+
+      <div class="header-cta">
+        <a href="contact.html" class="btn btn-primary">Check Availability</a>
+      </div>
+
+      <button class="hamburger" id="hamburgerMenu" aria-label="Toggle Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Subpage Hero Banner -->
+  <section class="hero-banner" style="padding: 140px 0 60px 0; text-align: center; background: radial-gradient(circle at 50% 50%, rgba(227, 30, 36, 0.04) 0%, transparent 70%);">
+    <div class="container">
+      <span class="section-tag">Get In Touch</span>
+      <h1 style="font-size: 48px; font-weight: 800; margin-top: 10px;">Contact Our Studio</h1>
+      <p style="color: var(--text-muted); max-width: 600px; margin: 16px auto 0 auto; font-size: 16px; line-height: 1.6;">Let's plan your perfect visual campaign. Drop us a message, email us directly, or call our owner to get started.</p>
+    </div>
+  </section>
+
+  <!-- Consultation Form Section -->
+  <section class="section section-bg-light" id="consultation" style="padding: 60px 0 100px 0;">
+    <div class="container consultation-grid">
+      
+      <div class="consultation-info reveal-left">
+        <span class="section-tag">Book Your Dream Shoot</span>
+        <h2 class="consultation-title">Check Availability & Get a Free Photography Quote</h2>
+        <p class="consultation-desc" style="margin-bottom: 30px;">Ready to capture your life's best memories in high-end cinematic quality? Fill out the form, and our lead photographer will contact you within 24 hours to plan your custom package.</p>
+        
+        <div class="contact-channels" style="display: flex; flex-direction: column; gap: 20px;">
+          <a href="tel:+919109035073" class="contact-item">
+            <div class="contact-icon"><i class="fas fa-phone-alt"></i></div>
+            <div class="contact-details">
+              <h4>Call Owner (Lucky Jat)</h4>
+              <p>+91 91090 35073</p>
+            </div>
+          </a>
+          <a href="mailto:info@ikkodigitals.in" class="contact-item">
+            <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+            <div class="contact-details">
+              <h4>Email Us Direct</h4>
+              <p>info@ikkodigitals.in</p>
+            </div>
+          </a>
+          <div class="contact-item">
+            <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>
+            <div class="contact-details">
+              <h4>Our Studio Address</h4>
+              <p>204, Ram Nagar, Musakhedi, Indore MP 452001</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Interactive Form -->
+      <div class="form-card reveal-right" style="background-color: var(--white); padding: 40px; border-radius: var(--radius-md); border: 1px solid var(--border-color); box-shadow: var(--shadow-md);">
+        <div class="form-success-alert" id="formSuccess" style="margin-bottom: 24px; padding: 16px 20px; border-radius: var(--radius-sm); background-color: var(--primary-light); color: var(--primary); font-weight: 700; display: none; align-items: center; gap: 12px;">
+          <i class="fas fa-circle-check" style="font-size: 24px;"></i>
+          <span>Success! Your booking request has been submitted. We will contact you within 24 hours.</span>
+        </div>
+        
+        <form action="https://formspree.io/f/info@ikkodigitals.in" method="POST" id="leadForm" onsubmit="handleLeadSubmit(event)">
+          <!-- Honeypot field for spam prevention -->
+          <input type="text" name="_gotcha" style="display:none">
+          
+          <div class="form-group" style="margin-bottom: 20px; display: flex; flex-direction: column; align-items: flex-start;">
+            <label class="form-label" for="fullName" style="margin-bottom: 8px; font-size: 13px; font-weight: 700; text-transform: uppercase; color: var(--text-dark);">Full Name *</label>
+            <input type="text" id="fullName" name="name" class="form-control" placeholder="Enter your full name" style="width: 100%;" required>
+          </div>
+          
+          <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; width: 100%;">
+            <div class="form-group" style="display: flex; flex-direction: column; align-items: flex-start;">
+              <label class="form-label" for="mobileNumber" style="margin-bottom: 8px; font-size: 13px; font-weight: 700; text-transform: uppercase; color: var(--text-dark);">Mobile Number *</label>
+              <input type="tel" id="mobileNumber" name="phone" class="form-control" placeholder="10-digit mobile number" pattern="[0-9]{10}" style="width: 100%;" required>
+            </div>
+            
+            <div class="form-group" style="display: flex; flex-direction: column; align-items: flex-start;">
+              <label class="form-label" for="emailAddress" style="margin-bottom: 8px; font-size: 13px; font-weight: 700; text-transform: uppercase; color: var(--text-dark);">Email Address *</label>
+              <input type="email" id="emailAddress" name="email" class="form-control" placeholder="Enter your email" style="width: 100%;" required>
+            </div>
+          </div>
+          
+          <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; width: 100%;">
+            <div class="form-group" style="display: flex; flex-direction: column; align-items: flex-start;">
+              <label class="form-label" for="businessName" style="margin-bottom: 8px; font-size: 13px; font-weight: 700; text-transform: uppercase; color: var(--text-dark);">Event Date & Venue *</label>
+              <input type="text" id="businessName" name="event_details" class="form-control" placeholder="e.g., Oct 12, Rajwada Indore" style="width: 100%;" required>
+            </div>
+            
+            <div class="form-group" style="display: flex; flex-direction: column; align-items: flex-start;">
+              <label class="form-label" for="serviceInterested" style="margin-bottom: 8px; font-size: 13px; font-weight: 700; text-transform: uppercase; color: var(--text-dark);">Service Interested In</label>
+              <select id="serviceInterested" name="service" class="form-control" style="width: 100%;">
+                <option value="" disabled selected>Select a Shoot Type</option>
+                <option value="Wedding Shots">Wedding Shots</option>
+                <option value="Pre-Wedding Shoot">Pre-Wedding Shoot</option>
+                <option value="Event Coverage">Event Coverage</option>
+                <option value="Birthday Shoot">Birthday Shoot</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-group" style="margin-bottom: 24px; display: flex; flex-direction: column; align-items: flex-start;">
+            <label class="form-label" for="formMessage" style="margin-bottom: 8px; font-size: 13px; font-weight: 700; text-transform: uppercase; color: var(--text-dark);">Briefly Describe Your Shoot *</label>
+            <textarea id="formMessage" name="message" class="form-control" placeholder="Tell us about your event (Location, timing, number of guests, specific style preferences...)" style="width: 100%; height: 120px; resize: none;" required></textarea>
+          </div>
+          
+          <button type="submit" class="btn btn-primary form-submit-btn" style="width: 100%; padding: 16px; border-radius: var(--radius-sm); font-size: 16px;">Submit Booking Request <i class="fas fa-paper-plane" style="margin-left: 6px;"></i></button>
+        </form>
+      </div>
+      
+    </div>
+  </section>
+
+  <!-- Footer Section -->
+  <footer class="footer">
+    <div class="container footer-grid">
+      
+      <div class="footer-brand">
+        <a href="index.html" class="logo">
+          <span class="logo-dot"></span>Ikko Digital Shoots
+        </a>
+        <p class="footer-desc">Ikko Digital Shoots is a premium photography and videography studio based in Indore. We capture life's special occasions with high-end cinematic style, creating beautiful, lasting memories.</p>
+      </div>
+      
+      <div class="footer-column">
+        <h4>Our Studio</h4>
+        <div class="footer-links">
+          <a href="index.html">Home</a>
+          <a href="about.html">About Us</a>
+          <a href="services.html">Our Services</a>
+          <a href="packages.html">Pricing Plans</a>
+          <a href="index.html#testimonials">Client Reviews</a>
+        </div>
+      </div>
+      
+      <div class="footer-column">
+        <h4>Get In Touch</h4>
+        <div class="footer-contact">
+          <a href="tel:+919109035073" class="footer-contact-item">
+            <i class="fas fa-phone-alt"></i>
+            <div>
+              <strong>Call Us</strong>
+              <p>+91 91090 35073</p>
+            </div>
+          </a>
+          <a href="mailto:info@ikkodigitals.in" class="footer-contact-item">
+            <i class="fas fa-envelope-open"></i>
+            <div>
+              <strong>Email Support</strong>
+              <p>info@ikkodigitals.in</p>
+            </div>
+          </a>
+          <div class="footer-contact-item">
+            <i class="fas fa-map-marker-alt"></i>
+            <div>
+              <strong>Our Studio Address</strong>
+              <p>204, Ram Nagar, Musakhedi, Indore MP 452001</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+    
+    <div class="container footer-bottom">
+      <p class="footer-copyright">&copy; 2026 Ikko Digital Shoots. All Rights Reserved.</p>
+      <div class="footer-bottom-links">
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms & Conditions</a>
+        <a href="refund.html">Refund Policy</a>
+        <a href="shipping.html">Shipping Policy</a>
+        <a href="contact.html">Book a Shoot</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Back to Top Button -->
+  <div class="back-to-top" id="backToTop" aria-label="Scroll to Top">
+    <i class="fas fa-arrow-up"></i>
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
